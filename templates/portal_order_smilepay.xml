@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- SmilePay Portal Order Template Override -->
+    <template id="portal_my_orders_order_smilepay" name="Portal My Orders - SmilePay Payment Info" inherit_id="sale.sale_order_portal_content">
+        <!-- Add SmilePay payment info section -->
+        <xpath expr="." position="inside">
+            <t t-if="sale_order.transaction_ids">
+                <t t-set="smilepay_tx" t-value="sale_order.transaction_ids.filtered(lambda tx: tx.provider_code == 'smilepay' and tx.state == 'pending')"/>
+                <t t-if="smilepay_tx">
+                    <!-- SmilePay Custom Payment Info Display -->
+                    <t t-set="payment_info" t-value="smilepay_tx[0].get_smilepay_payment_info_dict()"/>
+                    <t t-if="payment_info">
+                        <div class="alert alert-warning" style="border: none; padding: 0; background: transparent;">
+                            <div class="smilepay-portal-info" style="font-family: 'Helvetica Neue', Arial, sans-serif;">
+                                <!-- Header -->
+                                <div class="payment-header" t-att-style="'background: linear-gradient(135deg, #' + (payment_info.get('method_color') == 'primary' and '007bff' or payment_info.get('method_color') == 'success' and '28a745' or payment_info.get('method_color') == 'warning' and 'ffc107' or payment_info.get('method_color') == 'info' and '17a2b8' or '007bff') + ' 0%, #' + (payment_info.get('method_color') == 'primary' and '0056b3' or payment_info.get('method_color') == 'success' and '1e7e34' or payment_info.get('method_color') == 'warning' and 'e0a800' or payment_info.get('method_color') == 'info' and '117a8b' or '0056b3') + ' 100%); color: white; padding: 15px; border-radius: 8px 8px 0 0; margin-bottom: 0;'">
+                                    <h5 style="margin: 0; display: flex; align-items: center;">
+                                        <i t-att-class="'fa ' + payment_info.get('method_icon', 'fa-credit-card')" style="margin-right: 10px; font-size: 1.2em;"></i>
+                                        您的付款正在處理中 - <t t-out="payment_info.get('method_name', '付款方式')"/>
+                                    </h5>
+                                </div>
+                                
+                                <!-- Content -->
+                                <div class="payment-content" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 0 0 8px 8px; padding: 20px;">
+                                    <p style="margin-bottom: 15px; color: #856404;">
+                                        <i class="fa fa-info-circle" style="margin-right: 8px;"></i>
+                                        請依照以下資訊完成付款：
+                                    </p>
+                                    
+                                    <!-- Basic Info Row -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <div class="info-card" style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #007bff; height: 100%;">
+                                                <small class="text-muted">追蹤編號</small><br/>
+                                                <strong class="font-monospace" t-out="payment_info.get('tracking_no', '')"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-card" style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #28a745; height: 100%;">
+                                                <small class="text-muted">付款金額</small><br/>
+                                                <strong class="text-success" style="font-size: 1.1em;">NT$ <t t-out="payment_info.get('amount', '')"/></strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Payment Method Specific Info -->
+                                    <t t-if="payment_info.get('payment_method') == '2'">
+                                        <!-- ATM Payment -->
+                                        <div class="atm-payment-info">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="info-card text-center" style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                                                        <i class="fa fa-university text-primary" style="font-size: 1.5em; margin-bottom: 8px;"></i><br/>
+                                                        <small class="text-muted">銀行代碼</small><br/>
+                                                        <strong class="font-monospace" style="font-size: 1.2em; color: #1976d2;" t-out="payment_info.get('bank_code', '')"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="info-card text-center" style="background: #e8f5e8; padding: 15px; border-radius: 8px;">
+                                                        <i class="fa fa-credit-card text-success" style="font-size: 1.5em; margin-bottom: 8px;"></i><br/>
+                                                        <small class="text-muted">虛擬帳號</small><br/>
+                                                        <strong class="font-monospace" style="font-size: 1.2em; color: #388e3c;" t-out="payment_info.get('account_number', '')"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="alert alert-info" style="border-left: 4px solid #17a2b8;">
+                                                <i class="fa fa-info-circle" style="margin-right: 8px;"></i>
+                                                <t t-out="payment_info.get('instructions', '')"/>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    
+                                    <t t-if="payment_info.get('payment_method') == '3'">
+                                        <!-- Convenience Store Payment -->
+                                        <div class="cvs-payment-info">
+                                            <div class="barcode-display" style="background: #fff3e0; border: 2px dashed #f57c00; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                                                <h6 class="text-warning mb-3">
+                                                    <i class="fa fa-barcode" style="margin-right: 8px;"></i>便利商店繳費條碼
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        <small class="text-muted">條碼 1</small><br/>
+                                                        <div class="barcode-item font-monospace fw-bold" style="background: white; padding: 8px; border-radius: 4px; margin-top: 5px;" t-out="payment_info.get('barcode1', '')"/>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <small class="text-muted">條碼 2</small><br/>
+                                                        <div class="barcode-item font-monospace fw-bold" style="background: white; padding: 8px; border-radius: 4px; margin-top: 5px;" t-out="payment_info.get('barcode2', '')"/>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <small class="text-muted">條碼 3</small><br/>
+                                                        <div class="barcode-item font-monospace fw-bold" style="background: white; padding: 8px; border-radius: 4px; margin-top: 5px;" t-out="payment_info.get('barcode3', '')"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="alert alert-success" style="border-left: 4px solid #28a745;">
+                                                <i class="fa fa-info-circle" style="margin-right: 8px;"></i>
+                                                <t t-out="payment_info.get('instructions', '')"/>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    
+                                    <t t-if="payment_info.get('payment_method') in ['4', '6']">
+                                        <!-- ibon / FamiPort Payment -->
+                                        <div class="code-payment-info">
+                                            <div class="payment-code-display text-center" t-att-style="'background: #f3e5f5; border: 2px solid #' + (payment_info.get('method_color') == 'warning' and 'ffc107' or payment_info.get('method_color') == 'info' and '17a2b8' or '9c27b0') + '; padding: 25px; border-radius: 8px; margin-bottom: 15px;'">
+                                                <h6 t-att-class="'mb-3 text-' + payment_info.get('method_color', 'primary')">
+                                                    <i class="fa fa-ticket" style="margin-right: 8px;"></i>繳費代碼
+                                                </h6>
+                                                <div class="payment-code" style="background: white; padding: 20px; border-radius: 8px; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                                    <strong class="font-monospace" t-att-style="'font-size: 1.8em; color: #' + (payment_info.get('method_color') == 'warning' and 'ffc107' or payment_info.get('method_color') == 'info' and '17a2b8' or '9c27b0') + '; letter-spacing: 2px;'" t-out="payment_info.get('payment_code', '')"/>
+                                                </div>
+                                            </div>
+                                            <div class="alert alert-info" style="border-left: 4px solid #17a2b8;">
+                                                <i class="fa fa-info-circle" style="margin-right: 8px;"></i>
+                                                <t t-out="payment_info.get('instructions', '')"/>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    
+                                    <!-- Payment Deadline -->
+                                    <t t-if="payment_info.get('pay_end_date')">
+                                        <div class="alert alert-warning" style="border-left: 4px solid #ffc107; margin-top: 15px;">
+                                            <i class="fa fa-clock-o" style="margin-right: 8px;"></i>
+                                            <strong>繳費期限：<t t-out="payment_info.get('pay_end_date')"/></strong>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>

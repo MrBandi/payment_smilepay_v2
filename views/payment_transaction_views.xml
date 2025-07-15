@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- SmilePay Payment Transaction Form View -->
+    <record id="payment_transaction_form_smilepay" model="ir.ui.view">
+        <field name="name">payment.transaction.form.smilepay</field>
+        <field name="model">payment.transaction</field>
+        <field name="inherit_id" ref="payment.payment_transaction_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <!-- Add provider_code field for invisible conditions -->
+                <field name="provider_code" invisible="1"/>
+                <group name="smilepay_details" invisible="provider_code != 'smilepay'" string="SmilePay 詳細資訊">
+                    <group>
+                        <field name="smilepay_payment_method"/>
+                        <field name="smilepay_payment_subtype" invisible="smilepay_payment_method not in ['51', '52', '55', '56', '81', '82', '83']"/>
+                        <field name="smilepay_tracking_no" readonly="1"/>
+                        <field name="smilepay_pay_end_date" readonly="1"/>
+                    </group>
+                    <group>
+                        <!-- ATM 資訊 -->
+                        <field name="smilepay_atm_bank_no" readonly="1" invisible="smilepay_payment_method != '2'"/>
+                        <field name="smilepay_atm_no" readonly="1" invisible="smilepay_payment_method != '2'"/>
+                        
+                        <!-- 超商帳單條碼 -->
+                        <field name="smilepay_barcode1" readonly="1" invisible="smilepay_payment_method != '3'"/>
+                        <field name="smilepay_barcode2" readonly="1" invisible="smilepay_payment_method != '3'"/>
+                        <field name="smilepay_barcode3" readonly="1" invisible="smilepay_payment_method != '3'"/>
+                        
+                        <!-- ibon 代碼 -->
+                        <field name="smilepay_ibon_no" readonly="1" invisible="smilepay_payment_method != '4'"/>
+                        
+                        <!-- FamiPort 代碼 -->
+                        <field name="smilepay_fami_no" readonly="1" invisible="smilepay_payment_method != '6'"/>
+                        
+                        <field name="smilepay_payment_no" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- SmilePay Payment Transaction List View -->
+    <record id="payment_transaction_list_smilepay" model="ir.ui.view">
+        <field name="name">payment.transaction.list.smilepay</field>
+        <field name="model">payment.transaction</field>
+        <field name="inherit_id" ref="payment.payment_transaction_list"/>
+        <field name="arch" type="xml">
+            <field name="provider_id" position="after">
+                <!-- Add provider_code field for invisible conditions to work -->
+                <field name="provider_code" invisible="1"/>
+                <field name="smilepay_payment_method" string="付款方式" invisible="provider_code != 'smilepay'"/>
+                <field name="smilepay_tracking_no" string="追蹤碼" invisible="provider_code != 'smilepay'"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Payment Status Template -->
+    <template id="payment_status" name="SmilePay Payment Status">
+        <t t-call="website.layout">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h4>付款狀態查詢</h4>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-sm-4">訂單編號:</dt>
+                                    <dd class="col-sm-8"><t t-esc="reference"/></dd>
+                                    
+                                    <dt class="col-sm-4">付款狀態:</dt>
+                                    <dd class="col-sm-8">
+                                        <span t-if="state == 'done'" class="badge badge-success">已完成</span>
+                                        <span t-elif="state == 'pending'" class="badge badge-warning">待付款</span>
+                                        <span t-elif="state == 'authorized'" class="badge badge-info">已授權</span>
+                                        <span t-elif="state == 'error'" class="badge badge-danger">失敗</span>
+                                        <span t-else="" class="badge badge-secondary"><t t-esc="state"/></span>
+                                    </dd>
+                                    
+                                    <dt class="col-sm-4">金額:</dt>
+                                    <dd class="col-sm-8"><t t-esc="amount"/> <t t-esc="currency"/></dd>
+                                    
+                                    <dt class="col-sm-4">追蹤碼:</dt>
+                                    <dd class="col-sm-8"><t t-esc="tracking_no"/></dd>
+                                </dl>
+                                
+                                <!-- ATM 資訊 -->
+                                <div t-if="payment_method == '2'" class="mt-4">
+                                    <h5>ATM 轉帳資訊</h5>
+                                    <dl class="row">
+                                        <dt class="col-sm-4">銀行代號:</dt>
+                                        <dd class="col-sm-8"><t t-esc="bank_code"/></dd>
+                                        <dt class="col-sm-4">虛擬帳號:</dt>
+                                        <dd class="col-sm-8"><strong><t t-esc="account_number"/></strong></dd>
+                                    </dl>
+                                </div>
+                                
+                                <!-- 超商帳單 -->
+                                <div t-if="payment_method == '3'" class="mt-4">
+                                    <h5>超商繳費條碼</h5>
+                                    <dl class="row">
+                                        <dt class="col-sm-4">條碼1:</dt>
+                                        <dd class="col-sm-8"><t t-esc="barcode1"/></dd>
+                                        <dt class="col-sm-4">條碼2:</dt>
+                                        <dd class="col-sm-8"><t t-esc="barcode2"/></dd>
+                                        <dt class="col-sm-4">條碼3:</dt>
+                                        <dd class="col-sm-8"><t t-esc="barcode3"/></dd>
+                                    </dl>
+                                </div>
+                                
+                                <!-- ibon -->
+                                <div t-if="payment_method == '4'" class="mt-4">
+                                    <h5>7-11 ibon 繳費</h5>
+                                    <dl class="row">
+                                        <dt class="col-sm-4">ibon 代碼:</dt>
+                                        <dd class="col-sm-8"><strong><t t-esc="ibon_code"/></strong></dd>
+                                    </dl>
+                                </div>
+                                
+                                <!-- FamiPort -->
+                                <div t-if="payment_method == '6'" class="mt-4">
+                                    <h5>全家 FamiPort 繳費</h5>
+                                    <dl class="row">
+                                        <dt class="col-sm-4">FamiPort 代碼:</dt>
+                                        <dd class="col-sm-8"><strong><t t-esc="fami_code"/></strong></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- SmilePay Inline Form Template - Minimal Version -->
+    <template id="smilepay_inline_form" name="SmilePay Inline Form">
+        <div class="o_payment_form smilepay_payment_form">
+            <input type="hidden" name="reference" t-att-value="reference"/>
+            <input type="hidden" name="amount" t-att-value="amount"/>
+            <input type="hidden" name="currency" t-att-value="currency"/>
+            
+            <div class="smilepay-payment-selection">
+                <h5>選擇付款方式</h5>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="smilepay_method" value="2" id="method-atm"/>
+                    <label class="form-check-label" for="method-atm">
+                        <strong>ATM 轉帳</strong> - 使用 ATM 或網路銀行轉帳
+                    </label>
+                </div>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="smilepay_method" value="3" id="method-cvs"/>
+                    <label class="form-check-label" for="method-cvs">
+                        <strong>超商繳費</strong> - 到便利商店繳費
+                    </label>
+                </div>
+                
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="smilepay_method" value="4" id="method-ibon"/>
+                    <label class="form-check-label" for="method-ibon">
+                        <strong>7-11 ibon</strong> - 使用 7-11 ibon 機台繳費
+                    </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="radio" name="smilepay_method" value="6" id="method-fami"/>
+                    <label class="form-check-label" for="method-fami">
+                        <strong>全家 FamiPort</strong> - 使用全家 FamiPort 機台繳費
+                    </label>
+                </div>
+                
+                <button type="button" class="btn btn-primary smilepay-process-btn" disabled="disabled">
+                    確認付款
+                </button>
+            </div>
+            
+            <div class="smilepay-result" style="display: none;">
+                <!-- Payment result will be shown here -->
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+            <![CDATA[
+            document.addEventListener('DOMContentLoaded', function() {
+                // SmilePay inline form handler
+                const smilePayForms = document.querySelectorAll('.smilepay-inline-form');
+                
+                smilePayForms.forEach(function(form) {
+                    const methodInputs = form.querySelectorAll('input[name="smilepay_method"]');
+                    const submitBtn = form.querySelector('#smilepay-submit-btn');
+                    const loadingDiv = form.querySelector('#smilepay-loading');
+                    const paymentInfoDiv = form.querySelector('#smilepay-payment-info');
+                    
+                    // Enable submit button when payment method is selected
+                    methodInputs.forEach(function(input) {
+                        input.addEventListener('change', function() {
+                            submitBtn.disabled = false;
+                        });
+                    });
+                    
+                    // Handle form submission
+                    submitBtn.addEventListener('click', function() {
+                        const selectedMethod = form.querySelector('input[name="smilepay_method"]:checked');
+                        if (!selectedMethod) {
+                            alert('請選擇付款方式');
+                            return;
+                        }
+                        
+                        const reference = form.dataset.reference;
+                        const apiUrl = form.dataset.apiUrl;
+                        
+                        // Show loading
+                        loadingDiv.style.display = 'block';
+                        submitBtn.disabled = true;
+                        
+                        // Make AJAX call to process payment
+                        fetch(apiUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                jsonrpc: '2.0',
+                                method: 'call',
+                                params: {
+                                    'reference': reference,
+                                    'payment_method': selectedMethod.value
+                                },
+                                id: new Date().getTime()
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            loadingDiv.style.display = 'none';
+                            
+                            if (data.error) {
+                                alert('付款處理失敗: ' + (data.error.message || data.error.data.message));
+                                submitBtn.disabled = false;
+                            } else if (data.result && data.result.error) {
+                                alert('付款處理失敗: ' + data.result.message);
+                                submitBtn.disabled = false;
+                            } else {
+                                // Display payment information
+                                displayPaymentInfo(data.result.payment_data);
+                            }
+                        })
+                        .catch(error => {
+                            loadingDiv.style.display = 'none';
+                            alert('付款處理發生錯誤，請稍後再試');
+                            submitBtn.disabled = false;
+                        });
+                    });
+                    
+                    function displayPaymentInfo(paymentData) {
+                        let html = '<h5>付款資訊</h5>';
+                        
+                        if (paymentData.payment_method === '2') {
+                            // ATM
+                            html += '<div class="alert alert-info">';
+                            html += '<h6>ATM 轉帳資訊</h6>';
+                            html += '<p><strong>銀行代號:</strong> ' + paymentData.bank_code + '</p>';
+                            html += '<p><strong>虛擬帳號:</strong> <span class="smilepay-payment-code">' + paymentData.account_number + '</span></p>';
+                            html += '</div>';
+                        } else if (paymentData.payment_method === '3') {
+                            // 超商帳單
+                            html += '<div class="alert alert-info">';
+                            html += '<h6>超商繳費條碼</h6>';
+                            html += '<p><strong>條碼1:</strong> <span class="smilepay-barcode">' + paymentData.barcode1 + '</span></p>';
+                            html += '<p><strong>條碼2:</strong> <span class="smilepay-barcode">' + paymentData.barcode2 + '</span></p>';
+                            html += '<p><strong>條碼3:</strong> <span class="smilepay-barcode">' + paymentData.barcode3 + '</span></p>';
+                            html += '</div>';
+                        } else if (paymentData.payment_method === '4') {
+                            // ibon
+                            html += '<div class="alert alert-info">';
+                            html += '<h6>7-11 ibon 繳費</h6>';
+                            html += '<p><strong>ibon 代碼:</strong> <span class="smilepay-payment-code">' + paymentData.ibon_code + '</span></p>';
+                            html += '</div>';
+                        } else if (paymentData.payment_method === '6') {
+                            // FamiPort
+                            html += '<div class="alert alert-info">';
+                            html += '<h6>全家 FamiPort 繳費</h6>';
+                            html += '<p><strong>FamiPort 代碼:</strong> <span class="smilepay-payment-code">' + paymentData.fami_code + '</span></p>';
+                            html += '</div>';
+                        }
+                        
+                        if (paymentData.pay_end_date) {
+                            html += '<p class="smilepay-deadline"><strong>繳費期限:</strong> ' + new Date(paymentData.pay_end_date).toLocaleString() + '</p>';
+                        }
+                        
+                        html += '<div class="smilepay-instructions">';
+                        html += '<h6>繳費說明</h6>';
+                        html += '<ul>';
+                        html += '<li>請保存以上付款資訊</li>';
+                        html += '<li>請在繳費期限前完成付款</li>';
+                        html += '<li>付款完成後系統會自動更新訂單狀態</li>';
+                        html += '</ul>';
+                        html += '</div>';
+                        
+                        paymentInfoDiv.innerHTML = html;
+                        paymentInfoDiv.style.display = 'block';
+                        
+                        // Hide payment method selection
+                        form.querySelector('.payment-methods').style.display = 'none';
+                        submitBtn.style.display = 'none';
+                    }
+                });
+            });
+            ]]>
+        </script>
+    </template>
+
+</odoo>

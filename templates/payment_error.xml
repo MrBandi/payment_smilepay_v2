@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- SmilePay 錯誤頁面模板 -->
+    <template id="smilepay_payment_error" name="SmilePay Payment Error">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="card mt-5">
+                                <div class="card-header bg-danger text-white">
+                                    <h4 class="mb-0">
+                                        <i class="fa fa-exclamation-triangle me-2"></i>付款處理失敗
+                                    </h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-danger">
+                                        <h5>
+                                            <i class="fa fa-times-circle me-2"></i>SmilePay 付款錯誤
+                                        </h5>
+                                        <p class="mb-3">
+                                            很抱歉，在處理您的付款時發生了錯誤。
+                                        </p>
+                                        <div class="error-details">
+                                            <strong>錯誤訊息：</strong>
+                                            <div class="bg-light p-3 rounded mt-2">
+                                                <code t-esc="error_message or '未知錯誤'"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt-4">
+                                        <div class="col-md-6">
+                                            <h6>建議解決方案：</h6>
+                                            <ul class="list-unstyled">
+                                                <li><i class="fa fa-check text-success me-2"></i>檢查網路連線</li>
+                                                <li><i class="fa fa-check text-success me-2"></i>重新選擇付款方式</li>
+                                                <li><i class="fa fa-check text-success me-2"></i>聯繫客服支援</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>需要協助？</h6>
+                                            <p class="text-muted">
+                                                如果問題持續發生，請聯繫我們的客服團隊。
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center mt-4">
+                                        <a href="/shop/payment" class="btn btn-primary me-3">
+                                            <i class="fa fa-arrow-left me-2"></i>重新選擇付款方式
+                                        </a>
+                                        <a href="/shop" class="btn btn-secondary">
+                                            <i class="fa fa-shopping-cart me-2"></i>返回購物
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

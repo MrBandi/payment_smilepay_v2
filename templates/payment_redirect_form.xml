@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="smilepay_redirect_form" name="SmilePay Redirect Form">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-credit-card me-2"></i>SmilePay 付款方式選擇
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- 重要：Odoo 期望的重定向表單結構 -->
+                            <form id="o_payment_redirect_form" method="post" t-att-action="tx_url">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="reference" t-att-value="reference or ''"/>
+                                <input type="hidden" name="amount" t-att-value="amount or 0"/>
+                                <input type="hidden" name="currency_id" t-att-value="currency_id or ''"/>
+                                <input type="hidden" name="partner_id" t-att-value="partner_id or ''"/>
+                                <input type="hidden" name="provider_id" t-att-value="provider_id or ''"/>
+                                
+                                <!-- SmilePay 認證參數 -->
+                                <input type="hidden" name="smilepay_dcvc" t-att-value="smilepay_dcvc or ''"/>
+                                <input type="hidden" name="smilepay_rvg2c" t-att-value="smilepay_rvg2c or ''"/>
+                                <input type="hidden" name="smilepay_verify_key" t-att-value="smilepay_verify_key or ''"/>
+                                
+                                <!-- 客戶信息 -->
+                                <input type="hidden" name="partner_name" t-att-value="partner_name or ''"/>
+                                <input type="hidden" name="partner_email" t-att-value="partner_email or ''"/>
+                                <input type="hidden" name="partner_phone" t-att-value="partner_phone or ''"/>
+                                <input type="hidden" name="partner_mobile" t-att-value="partner_mobile or ''"/>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">選擇付款方式 Payment Method:</label>
+                                    
+                                    <div class="payment-methods">
+                                        <!-- ATM 轉帳 -->
+                                        <div class="form-check mb-3 p-3 border rounded">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="payment_method" value="2" id="method_atm" 
+                                                   t-att-checked="smilepay_payment_method == '2' or not smilepay_payment_method"/>
+                                            <label class="form-check-label w-100" for="method_atm">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fa fa-university fa-2x text-primary me-3"></i>
+                                                    <div>
+                                                        <strong>虛擬帳號/ATM 轉帳</strong>
+                                                        <div class="text-muted small">使用 ATM 或網路銀行轉帳</div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- 超商帳單 -->
+                                        <div class="form-check mb-3 p-3 border rounded">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="payment_method" value="3" id="method_cvs"
+                                                   t-att-checked="smilepay_payment_method == '3'"/>
+                                            <label class="form-check-label w-100" for="method_cvs">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fa fa-store fa-2x text-success me-3"></i>
+                                                    <div>
+                                                        <strong>超商帳單繳費</strong>
+                                                        <div class="text-muted small">7-11、全家、萊爾富等便利商店</div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- 7-11 ibon -->
+                                        <div class="form-check mb-3 p-3 border rounded">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="payment_method" value="4" id="method_ibon"
+                                                   t-att-checked="smilepay_payment_method == '4'"/>
+                                            <label class="form-check-label w-100" for="method_ibon">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fa fa-receipt fa-2x text-warning me-3"></i>
+                                                    <div>
+                                                        <strong>7-11 ibon</strong>
+                                                        <div class="text-muted small">使用 7-11 ibon 機台繳費</div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- FamiPort -->
+                                        <div class="form-check mb-3 p-3 border rounded">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="payment_method" value="6" id="method_fami"
+                                                   t-att-checked="smilepay_payment_method == '6'"/>
+                                            <label class="form-check-label w-100" for="method_fami">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fa fa-credit-card fa-2x text-info me-3"></i>
+                                                    <div>
+                                                        <strong>FamiPort (全家)</strong>
+                                                        <div class="text-muted small">使用全家便利商店 FamiPort 機台</div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="order-info bg-light p-3 rounded mb-4">
+                                    <h6>訂單資訊 Order Information:</h6>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <strong>訂單編號:</strong> <t t-out="reference or ''"/>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <strong>金額:</strong> NT$ <t t-out="amount or 0"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="fa fa-arrow-right me-2"></i>繼續付款 Continue Payment
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 防止 JavaScript 錯誤的安全措施 -->
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                // 確保表單元素存在
+                const form = document.getElementById('o_payment_redirect_form');
+                if (!form) {
+                    console.error('SmilePay: Payment redirect form not found');
+                    return;
+                }
+                
+                // 添加表單提交處理
+                form.addEventListener('submit', function(e) {
+                    const selectedMethod = document.querySelector('input[name="payment_method"]:checked');
+                    if (!selectedMethod) {
+                        e.preventDefault();
+                        alert('請選擇付款方式');
+                        return false;
+                    }
+                });
+            });
+        </script>
+    </template>
+</odoo>

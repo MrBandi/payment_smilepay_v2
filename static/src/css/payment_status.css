@@ -1,0 +1,59 @@
+/* SmilePay Payment Status Styles */
+.payment-info h5 {
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.badge {
+    font-size: 1rem;
+    padding: 8px 12px;
+}
+
+.smilepay-payment-info {
+    background: white;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+.payment-methods .form-check {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.payment-methods .form-check:hover {
+    background-color: #f8f9fa;
+    border-color: #007bff !important;
+}
+
+.payment-methods .form-check-input:checked + .form-check-label {
+    color: #007bff;
+}
+
+.order-info {
+    border: 1px solid #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .payment-info {
+        font-size: 12px;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+    
+    .smilepay-payment-info {
+        font-size: 12px;
+        padding: 10px;
+    }
+}

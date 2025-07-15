@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- SmilePay Payment Provider Form View -->
+    <record id="payment_provider_form_smilepay" model="ir.ui.view">
+        <field name="name">payment.provider.form.smilepay</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <group name="provider_credentials" position="after">
+                <group name="smilepay_credentials" invisible="code != 'smilepay'">
+                    <group string="SmilePay 認證資料">
+                        <field name="smilepay_dcvc" password="True"/>
+                        <field name="smilepay_rvg2c" password="True"/>
+                        <field name="smilepay_verify_key" password="True"/>
+                        <field name="smilepay_merchant_verify_param" password="True"/>
+                    </group>
+                    <group string="API 設定">
+                        <field name="smilepay_api_url"/>
+                    </group>
+                    <group string="支援功能" col="2">
+                        <div class="text-muted" colspan="2">
+                            <strong>支援的付款方式:</strong><br/>
+                            • 虛擬帳號/ATM<br/>
+                            • 超商帳單<br/>
+                            • 7-11 ibon<br/>
+                            • FamiPort<br/>
+                            • 超商取貨付款<br/>
+                            • 黑貓宅配服務
+                        </div>
+                    </group>
+                </group>
+            </group>
+        </field>
+    </record>
+
+    <!-- SmilePay Payment Provider Menu - Commented out due to menu reference issue -->
+    <!-- Users can access SmilePay configuration via Accounting > Configuration > Payment Providers -->
+    <!--
+    <menuitem
+        id="menu_payment_smilepay"
+        name="SmilePay"
+        parent="payment.menu_payment_providers"
+        action="payment.action_payment_provider"
+        sequence="10"/>
+    -->
+
+</odoo>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- SmilePay Payment Methods -->
+        
+        <!-- ATM 轉帳 -->
+        <record id="payment_method_smilepay_atm" model="payment.method">
+            <field name="name">ATM 轉帳</field>
+            <field name="code">smilepay_atm</field>
+            <field name="sequence">10</field>
+            <field name="supported_country_ids" eval="[(6, 0, [ref('base.tw')])]"/>
+            <field name="supported_currency_ids" eval="[(6, 0, [ref('base.TWD')])]"/>
+            <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_smilepay')])]"/>
+            <field name="is_primary">True</field>
+            <field name="smilepay_payment_code">2</field>
+        </record>
+
+        <!-- 超商繳費 -->
+        <record id="payment_method_smilepay_cvs" model="payment.method">
+            <field name="name">超商繳費</field>
+            <field name="code">smilepay_cvs</field>
+            <field name="sequence">20</field>
+            <field name="supported_country_ids" eval="[(6, 0, [ref('base.tw')])]"/>
+            <field name="supported_currency_ids" eval="[(6, 0, [ref('base.TWD')])]"/>
+            <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_smilepay')])]"/>
+            <field name="is_primary">True</field>
+            <field name="smilepay_payment_code">3</field>
+        </record>
+
+        <!-- 7-11 ibon -->
+        <record id="payment_method_smilepay_ibon" model="payment.method">
+            <field name="name">7-11 ibon</field>
+            <field name="code">smilepay_ibon</field>
+            <field name="sequence">30</field>
+            <field name="supported_country_ids" eval="[(6, 0, [ref('base.tw')])]"/>
+            <field name="supported_currency_ids" eval="[(6, 0, [ref('base.TWD')])]"/>
+            <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_smilepay')])]"/>
+            <field name="is_primary">True</field>
+            <field name="smilepay_payment_code">4</field>
+        </record>
+
+        <!-- FamiPort -->
+        <record id="payment_method_smilepay_fami" model="payment.method">
+            <field name="name">FamiPort</field>
+            <field name="code">smilepay_fami</field>
+            <field name="sequence">40</field>
+            <field name="supported_country_ids" eval="[(6, 0, [ref('base.tw')])]"/>
+            <field name="supported_currency_ids" eval="[(6, 0, [ref('base.TWD')])]"/>
+            <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_smilepay')])]"/>
+            <field name="is_primary">True</field>
+            <field name="smilepay_payment_code">6</field>
+        </record>
+
+        <!-- C2C 取貨付款 -->
+        <record id="payment_method_smilepay_c2c_cod" model="payment.method">
+            <field name="name">C2C 取貨付款</field>
+            <field name="code">smilepay_c2c_cod</field>
+            <field name="sequence">50</field>
+            <field name="supported_country_ids" eval="[(6, 0, [ref('base.tw')])]"/>
+            <field name="supported_currency_ids" eval="[(6, 0, [ref('base.TWD')])]"/>
+            <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_smilepay')])]"/>
+            <field name="is_primary">True</field>
+            <field name="smilepay_payment_code">51</field>
+        </record>
+
+        <!-- B2C 取貨付款 -->
+        <record id="payment_method_smilepay_b2c_cod" model="payment.method">
+            <field name="name">B2C 取貨付款</field>
+            <field name="code">smilepay_b2c_cod</field>
+            <field name="sequence">55</field>
+            <field name="supported_country_ids" eval="[(6, 0, [ref('base.tw')])]"/>
+            <field name="supported_currency_ids" eval="[(6, 0, [ref('base.TWD')])]"/>
+            <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_smilepay')])]"/>
+            <field name="is_primary">True</field>
+            <field name="smilepay_payment_code">55</field>
+        </record>
+
+        <!-- 黑貓貨到付款 -->
+        <record id="payment_method_smilepay_tcat" model="payment.method">
+            <field name="name">黑貓貨到付款</field>
+            <field name="code">smilepay_tcat</field>
+            <field name="sequence">60</field>
+            <field name="supported_country_ids" eval="[(6, 0, [ref('base.tw')])]"/>
+            <field name="supported_currency_ids" eval="[(6, 0, [ref('base.TWD')])]"/>
+            <field name="provider_ids" eval="[(6, 0, [ref('payment_provider_smilepay')])]"/>
+            <field name="is_primary">True</field>
+            <field name="smilepay_payment_code">81</field>
+        </record>
+        
+    </data>
+</odoo>

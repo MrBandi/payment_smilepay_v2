@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- SmilePay Inline Payment Form Template -->
+    <template id="smilepay_inline_form" name="SmilePay Inline Form">
+        <div class="o_payment_form" t-att-data-provider-code="params.provider_code">
+            <div id="o_smilepay_payment_form" class="smilepay-payment-container">
+                <!-- Hidden form fields for processing -->
+                <input type="hidden" name="reference" t-att-value="params.reference"/>
+                <input type="hidden" name="amount" t-att-value="params.amount"/>
+                <input type="hidden" name="currency" t-att-value="params.currency"/>
+                <input type="hidden" name="partner_name" t-att-value="params.partner_name"/>
+                <input type="hidden" name="partner_email" t-att-value="params.partner_email"/>
+                <input type="hidden" name="partner_phone" t-att-value="params.partner_phone"/>
+                
+                <!-- Payment Method Selection -->
+                <div class="smilepay-payment-methods">
+                    <h5 class="mb-3">選擇付款方式 Choose Payment Method</h5>
+                    
+                    <div class="payment-method-options">
+                        <!-- ATM Virtual Account -->
+                        <div class="form-check">
+                            <input class="form-check-input smilepay-method" type="radio" 
+                                   name="smilepay_payment_method" value="2" id="smilepay_atm" checked="checked"/>
+                            <label class="form-check-label" for="smilepay_atm">
+                                <i class="fa fa-university me-2"></i>
+                                虛擬帳號/ATM 轉帳 (Virtual ATM Account)
+                            </label>
+                        </div>
+                        
+                        <!-- Convenience Store Bill -->
+                        <div class="form-check">
+                            <input class="form-check-input smilepay-method" type="radio" 
+                                   name="smilepay_payment_method" value="3" id="smilepay_cvs"/>
+                            <label class="form-check-label" for="smilepay_cvs">
+                                <i class="fa fa-store me-2"></i>
+                                超商帳單 (Convenience Store Bill)
+                            </label>
+                        </div>
+                        
+                        <!-- 7-11 ibon -->
+                        <div class="form-check">
+                            <input class="form-check-input smilepay-method" type="radio" 
+                                   name="smilepay_payment_method" value="4" id="smilepay_ibon"/>
+                            <label class="form-check-label" for="smilepay_ibon">
+                                <i class="fa fa-receipt me-2"></i>
+                                7-11 ibon
+                            </label>
+                        </div>
+                        
+                        <!-- FamiPort -->
+                        <div class="form-check">
+                            <input class="form-check-input smilepay-method" type="radio" 
+                                   name="smilepay_payment_method" value="6" id="smilepay_fami"/>
+                            <label class="form-check-label" for="smilepay_fami">
+                                <i class="fa fa-credit-card me-2"></i>
+                                FamiPort (全家便利商店)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Information Display Area -->
+                <div id="smilepay_payment_info" class="smilepay-payment-info mt-4" style="display: none;">
+                    <div class="alert alert-info">
+                        <h6><i class="fa fa-info-circle me-2"></i>付款資訊 Payment Information</h6>
+                        <div id="smilepay_payment_details"></div>
+                    </div>
+                </div>
+                
+                <!-- Processing Status -->
+                <div id="smilepay_processing" class="text-center mt-3" style="display: none;">
+                    <div class="spinner-border text-primary me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    正在處理付款... Processing payment...
+                </div>
+                
+                <!-- Error Display -->
+                <div id="smilepay_error" class="alert alert-danger mt-3" style="display: none;">
+                    <h6><i class="fa fa-exclamation-triangle me-2"></i>錯誤 Error</h6>
+                    <div id="smilepay_error_message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SmilePay JavaScript -->
+        <script type="text/javascript">
+        <![CDATA[
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('o_smilepay_payment_form');
+                if (!form) return;
+                
+                const methodInputs = form.querySelectorAll('.smilepay-method');
+                const processingDiv = document.getElementById('smilepay_processing');
+                const errorDiv = document.getElementById('smilepay_error');
+                const paymentInfoDiv = document.getElementById('smilepay_payment_info');
+                const paymentDetailsDiv = document.getElementById('smilepay_payment_details');
+                const errorMessageDiv = document.getElementById('smilepay_error_message');
+                
+                // Hide all status divs initially
+                function hideAllStatus() {
+                    if (processingDiv) processingDiv.style.display = 'none';
+                    if (errorDiv) errorDiv.style.display = 'none';
+                    if (paymentInfoDiv) paymentInfoDiv.style.display = 'none';
+                }
+                
+                // Show error message
+                function showError(message) {
+                    hideAllStatus();
+                    if (errorDiv && errorMessageDiv) {
+                        errorMessageDiv.textContent = message;
+                        errorDiv.style.display = 'block';
+                    }
+                }
+                
+                // Show payment info
+                function showPaymentInfo(data) {
+                    hideAllStatus();
+                    if (paymentInfoDiv && paymentDetailsDiv) {
+                        var html = '';
+                        
+                        if (data.payment_method === '2') { // ATM
+                            html = '<p><strong>銀行代號:</strong> ' + (data.bank_code || '') + '</p>' +
+                                   '<p><strong>虛擬帳號:</strong> ' + (data.account_number || '') + '</p>' +
+                                   '<p><strong>金額:</strong> NT$ ' + (data.amount || '') + '</p>' +
+                                   '<p><strong>繳費期限:</strong> ' + (data.pay_end_date || '') + '</p>' +
+                                   '<p class="text-muted">請使用 ATM 或網路銀行轉帳至上述帳號</p>';
+                        } else if (data.payment_method === '3') { // 超商帳單
+                            html = '<p><strong>條碼1:</strong> ' + (data.barcode1 || '') + '</p>' +
+                                   '<p><strong>條碼2:</strong> ' + (data.barcode2 || '') + '</p>' +
+                                   '<p><strong>條碼3:</strong> ' + (data.barcode3 || '') + '</p>' +
+                                   '<p><strong>金額:</strong> NT$ ' + (data.amount || '') + '</p>' +
+                                   '<p class="text-muted">請至便利商店出示條碼繳費</p>';
+                        } else if (data.payment_method === '4') { // ibon
+                            html = '<p><strong>ibon 繳費代碼:</strong> ' + (data.ibon_code || '') + '</p>' +
+                                   '<p><strong>金額:</strong> NT$ ' + (data.amount || '') + '</p>' +
+                                   '<p class="text-muted">請至 7-11 使用 ibon 機台繳費</p>';
+                        } else if (data.payment_method === '6') { // FamiPort
+                            html = '<p><strong>FamiPort 繳費代碼:</strong> ' + (data.fami_code || '') + '</p>' +
+                                   '<p><strong>金額:</strong> NT$ ' + (data.amount || '') + '</p>' +
+                                   '<p class="text-muted">請至全家便利商店使用 FamiPort 機台繳費</p>';
+                        }
+                        
+                        if (data.tracking_no) {
+                            html += '<p><strong>追蹤碼:</strong> ' + data.tracking_no + '</p>';
+                        }
+                        
+                        paymentDetailsDiv.innerHTML = html;
+                        paymentInfoDiv.style.display = 'block';
+                    }
+                }
+                
+                // Process SmilePay payment
+                function processSmilePayPayment() {
+                    const selectedMethod = form.querySelector('input[name="smilepay_payment_method"]:checked');
+                    if (!selectedMethod) {
+                        showError('請選擇付款方式 Please select a payment method');
+                        return;
+                    }
+                    
+                    const reference = form.querySelector('input[name="reference"]');
+                    if (!reference || !reference.value) {
+                        showError('Missing payment reference');
+                        return;
+                    }
+                    
+                    hideAllStatus();
+                    if (processingDiv) processingDiv.style.display = 'block';
+                    
+                    const requestData = {
+                        reference: reference.value,
+                        payment_method: selectedMethod.value
+                    };
+                    
+                    fetch('/payment/smilepay/process', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        if (data.error) {
+                            showError(data.message || 'Payment processing failed');
+                        } else if (data.success && data.payment_data) {
+                            showPaymentInfo(data.payment_data);
+                        } else {
+                            showError('Invalid response from payment provider');
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('SmilePay payment error:', error);
+                        showError('Network error occurred. Please try again.');
+                    });
+                }
+                
+                // Auto-process payment when method is selected
+                methodInputs.forEach(function(input) {
+                    input.addEventListener('change', function() {
+                        if (this.checked) {
+                            setTimeout(processSmilePayPayment, 500); // Small delay for better UX
+                        }
+                    });
+                });
+                
+                // Process payment immediately if default method is selected
+                const defaultMethod = form.querySelector('input[name="smilepay_payment_method"]:checked');
+                if (defaultMethod) {
+                    setTimeout(processSmilePayPayment, 1000);
+                }
+                
+                // Handle form submission
+                const paymentForm = form.closest('form');
+                if (paymentForm) {
+                    paymentForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        processSmilePayPayment();
+                    });
+                }
+            });
+        ]]>
+        </script>
+    </template>
+</odoo>

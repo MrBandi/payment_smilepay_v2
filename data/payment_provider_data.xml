@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- SmilePay Payment Provider -->
+        <record id="payment_provider_smilepay" model="payment.provider">
+            <field name="name">SmilePay</field>
+            <field name="code">smilepay</field>
+            <field name="sequence">10</field>
+            <field name="is_published">False</field>
+            <field name="state">disabled</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="main_currency_id" ref="base.TWD"/>
+            <!-- Temporarily remove image reference until actual SmilePay icon is available -->
+            <!-- <field name="image_128" type="base64" file="smilepay_v2/static/src/img/smilepay_icon.png"/> -->
+            <field name="pre_msg"><![CDATA[
+                <p>您將被重定向到 SmilePay 來完成付款。</p>
+                <p>支援多種付款方式：ATM轉帳、超商繳費、ibon、FamiPort等。</p>
+            ]]></field>
+            <field name="pending_msg"><![CDATA[
+                <p>您的付款正在處理中。</p>
+                <p>請依照提供的繳費資訊完成付款。</p>
+            ]]></field>
+            <field name="auth_msg"><![CDATA[
+                <p>您的付款已授權，正在等待確認。</p>
+            ]]></field>
+            <field name="done_msg"><![CDATA[
+                <p>您的付款已完成，謝謝您的購買！</p>
+            ]]></field>
+            <field name="cancel_msg"><![CDATA[
+                <p>您的付款已取消。</p>
+            ]]></field>
+        </record>
+
+    </data>
+</odoo>
