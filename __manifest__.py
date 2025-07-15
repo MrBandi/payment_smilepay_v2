@@ -25,8 +25,8 @@ Key Features:
 - Secure payment verification
 - Taiwan market focused
     """,
-    'author': 'Your Company',
-    'website': 'https://www.yourcompany.com',
+    'author': 'MrBandi',
+    'website': 'https://www.curshosting.net',
     'depends': ['payment', 'website', 'website_sale', 'sale'],
     'data': [
         'views/payment_provider_views.xml',
